@@ -60,7 +60,7 @@ def getModelResults(atoken: str, data_head, data_body):
     swa_req_header = {'Authorization': 'Bearer {}'.format(atoken), "Content-Type": "application/json"}
 
     swa_resp = requests.post(url=ML_REQUEST_URL, data=json.dumps(swa_req_data), headers=swa_req_header)
-    print(swa_resp.json())
+    #print(swa_resp.json())
     return swa_resp
 
     

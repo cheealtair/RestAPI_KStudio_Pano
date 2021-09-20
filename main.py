@@ -10,6 +10,7 @@ from flask import Flask, request
 from flask_restplus import Api, Resource, fields
 import json
 import SWA_DeployedModel as swam
+import pandas as pd
 
 # defining app using flask_restplus.API
 flask_app = Flask(__name__)
@@ -101,6 +102,58 @@ class swaModelClass(Resource):
         data = table
         #print(json.dumps(data))
         return data
+
+# Usage: http://127.0.0.1:5000/main/streams_simple    No trailing "/" is required
+@name_space.route("/streams_simple")
+class swaModelStreamsClass(Resource):
+
+    def post(self):
+        #data = request.json['data']
+        df = pd.DataFrame([{'c1': 10, 'c2': 100}, {'c1': 11, 'c2': 110}, {'c1': 12, 'c2': 120}])
+        table = [{'c1': 10, 'c2': 100}, {'c1': 11, 'c2': 110}, {'c1': 12, 'c2': 120}]
+        #return json.dumps(table)
+        return table
+
+# Usage: http://127.0.0.1:5000/main/swa_model_streams    No trailing "/" is required
+@name_space.route("/swa_model_streams")
+class swaModelStreamsClass(Resource):
+
+    def post(self):
+        
+        
+        data = request.json['data']
+        # Scoring using SWA deployed model
+        in_header = ["age", "relationship"]
+        mytoken = swam.getToken()
+        myresults = swam.getModelResults(mytoken, in_header, data)
+        dict_predicted = myresults.json()
+        list_predicted = dict_predicted['data']['ndarray']
+        # print(list_predicted)
+
+        # for using {table-data}
+        table = []
+        for arow, brow in zip(data, list_predicted):
+            data1 = arow[0]
+            data2 = arow[1]
+            table.append({'age': str(data1), 'rel': data2, 'predicted': brow[0]})
+        #print(table)
+        # end for using {table-data}
+
+        data = table
+        # print(json.dumps(data))
+        return data
+        
+        '''
+        print(type(request.json))
+        data = request.json['data']
+        print(type(data))
+        for aa in data:
+            print(aa)
+        
+        table = [{'c1': 10, 'c2': 100}, {'c1': 11, 'c2': 110}, {'c1': 12, 'c2': 120}]
+        # return json.dumps(table)
+        return data
+        '''
 
 
 if __name__ == '__main__':
